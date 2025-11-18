@@ -20,8 +20,6 @@ import { getDailyGoal, setDailyGoal } from '@/utils/storage';
 export default function SettingsScreen() {
   const [inputValue, setInputValue] = useState('0');
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [feedback, setFeedback] = useState('');
 
   useEffect(() => {
     const loadGoal = async () => {
@@ -39,29 +37,17 @@ export default function SettingsScreen() {
     loadGoal();
   }, []);
 
-  const adjustGoal = (delta: number) => {
-    setFeedback('');
+  const adjustGoal = async (delta: number) => {
     const current = parseInt(inputValue.replace(/[^0-9]/g, ''), 10) || 0;
     const next = Math.max(0, current + delta);
     setInputValue(String(next));
-  };
-
-  const handleSave = async () => {
-    const parsedGoal = parseInt(inputValue, 10);
-    if (Number.isNaN(parsedGoal) || parsedGoal <= 0) {
-      Alert.alert('Invalid goal', 'Please enter a number greater than zero.');
-      return;
-    }
-
+    
+    // Auto-save immediately
     try {
-      setIsSaving(true);
-      await setDailyGoal(parsedGoal);
-      setFeedback('Goal saved successfully');
+      await setDailyGoal(next);
     } catch (error) {
       console.error('Error saving goal', error);
       Alert.alert('Error', 'Unable to save your goal. Please try again.');
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -101,8 +87,16 @@ export default function SettingsScreen() {
                   value={inputValue}
                   keyboardType="number-pad"
                   onChangeText={(text) => {
-                    setFeedback('');
                     setInputValue(text.replace(/[^0-9]/g, ''));
+                  }}
+                  onBlur={async () => {
+                    const parsedGoal = parseInt(inputValue, 10) || 0;
+                    try {
+                      await setDailyGoal(parsedGoal);
+                    } catch (error) {
+                      console.error('Error saving goal', error);
+                      Alert.alert('Error', 'Unable to save your goal. Please try again.');
+                    }
                   }}
                   style={styles.goalInput}
                   maxLength={3}
@@ -126,23 +120,6 @@ export default function SettingsScreen() {
                 goal anytime you need a fresh challenge.
               </ThemedText>
             </View>
-
-            <TouchableOpacity
-              style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
-              onPress={handleSave}
-              disabled={isSaving}
-              activeOpacity={0.9}
-            >
-              <ThemedText style={styles.saveButtonText}>
-                {isSaving ? 'Saving…' : 'Save Goal'}
-              </ThemedText>
-            </TouchableOpacity>
-
-            {!!feedback && (
-              <ThemedText style={styles.feedbackText}>
-                {feedback}
-              </ThemedText>
-            )}
           </ScrollView>
         </KeyboardAvoidingView>
       </ThemedView>
@@ -226,34 +203,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   adjustButtonText: {
-    fontSize: 32,
+    fontSize: 36,
     color: '#fff',
-    marginTop: -4,
-  },
-  saveButton: {
-    backgroundColor: '#3f51b5',
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  saveButtonDisabled: {
-    opacity: 0.6,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  feedbackText: {
+    lineHeight: 36,
     textAlign: 'center',
-    color: '#4CAF50',
-    marginTop: 12,
-    fontSize: 14,
+    includeFontPadding: false,
   },
 });
 
