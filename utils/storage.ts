@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format, parseISO, isSameDay } from 'date-fns';
 
 const STORAGE_KEY = '@DailyCigs:logs';
+const GOAL_KEY = '@DailyCigs:dailyGoal';
+const DEFAULT_GOAL = 0;
 
 export interface CigaretteLog {
   id: string;
@@ -30,13 +32,15 @@ export const getLogs = async (): Promise<CigaretteLog[]> => {
 };
 
 // Add a new log
-export const addLog = async (): Promise<CigaretteLog[]> => {
+export const addLog = async (log?: CigaretteLog): Promise<CigaretteLog[]> => {
   try {
     const logs = await getLogs();
-    const newLog: CigaretteLog = {
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-    };
+    const newLog: CigaretteLog =
+      log ??
+      {
+        id: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+      };
     const updatedLogs = [...logs, newLog];
     await saveLogs(updatedLogs);
     return updatedLogs;
@@ -99,5 +103,24 @@ export const getLogsByDay = async (days: number): Promise<{date: Date; count: nu
   } catch (error) {
     console.error('Error getting logs by day:', error);
     return [];
+  }
+};
+
+export const getDailyGoal = async (): Promise<number> => {
+  try {
+    const value = await AsyncStorage.getItem(GOAL_KEY);
+    return value ? parseInt(value, 10) || DEFAULT_GOAL : DEFAULT_GOAL;
+  } catch (error) {
+    console.error('Error getting daily goal:', error);
+    return DEFAULT_GOAL;
+  }
+};
+
+export const setDailyGoal = async (goal: number): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(GOAL_KEY, goal.toString());
+  } catch (error) {
+    console.error('Error saving daily goal:', error);
+    throw error;
   }
 };
