@@ -1,50 +1,126 @@
-# Welcome to your Expo app 👋
+# DailyCigs - Daily Cigarette Tracker
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, cross-platform mobile application built with React Native and Expo to help you track your daily cigarette consumption. Monitor your habits, set goals, and visualize your progress over time.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 📊 **Daily Tracking**: Easily log cigarettes throughout the day with a simple tap
+- 📈 **Trends & Analytics**: View your consumption patterns with interactive charts (weekly and monthly views)
+- 🎯 **Daily Goals**: Set and track daily consumption goals
+- ⏰ **Time-based Statistics**: See when you smoke most (morning, afternoon, evening, night)
+- 🌓 **Dark Mode Support**: Automatic theme switching based on system preferences
+- 💾 **Local Storage**: All data is stored locally on your device for privacy
+- 📱 **Cross-platform**: Works on iOS, Android, and Web
 
+## Screenshots
+
+The app includes three main screens:
+- **Home**: Quick counter and today's statistics
+- **Trends**: Visual charts showing your consumption over time
+- **Settings**: Configure your daily goals and preferences
+
+## Tech Stack
+
+- [Expo](https://expo.dev) - React Native framework
+- [React Native](https://reactnative.dev) - Mobile app framework
+- [TypeScript](https://www.typescriptlang.org) - Type safety
+- [Expo Router](https://docs.expo.dev/router/introduction) - File-based routing
+- [React Native Chart Kit](https://github.com/indiespirit/react-native-chart-kit) - Data visualization
+- [AsyncStorage](https://react-native-async-storage.github.io/async-storage) - Local data persistence
+- [date-fns](https://date-fns.org) - Date manipulation utilities
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or later)
+- npm or yarn
+- Expo CLI (optional, but recommended)
+- iOS Simulator (for Mac) or Android Emulator (optional)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/lifeofzi/daily-cigarettes-tracker.git
+   cd daily-cigarettes-tracker/DailyCigs
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. Start the development server:
    ```bash
+   npm start
+   # or
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. Run on your preferred platform:
+   - Press `i` for iOS simulator
+   - Press `a` for Android emulator
+   - Press `w` for web browser
+   - Scan QR code with Expo Go app on your physical device
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Available Scripts
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- `npm start` - Start the Expo development server
+- `npm run android` - Start on Android emulator
+- `npm run ios` - Start on iOS simulator
+- `npm run web` - Start in web browser
+- `npm run lint` - Run ESLint
 
-## Get a fresh project
+## Project Structure
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+DailyCigs/
+├── app/                    # App screens and routing
+│   ├── (tabs)/            # Tab navigation screens
+│   │   ├── index.tsx      # Home screen
+│   │   ├── trends.tsx     # Trends/analytics screen
+│   │   └── settings.tsx   # Settings screen
+│   └── _layout.tsx        # Root layout
+├── components/             # Reusable components
+├── utils/                  # Utility functions
+│   └── storage.ts         # Data persistence logic
+├── constants/             # App constants
+└── assets/                # Images and static assets
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Building for Production
 
-## Learn more
+### iOS
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+eas build --platform ios
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Android
 
-## Join the community
+```bash
+eas build --platform android
+```
 
-Join our community of developers creating universal apps.
+Make sure you have configured `eas.json` with your build profiles.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Privacy
+
+All data is stored locally on your device using AsyncStorage. No data is sent to external servers, ensuring complete privacy of your tracking information.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is private and not licensed for public use.
+
+## Support
+
+For issues, questions, or suggestions, please open an issue on the [GitHub repository](https://github.com/lifeofzi/daily-cigarettes-tracker).
+
+---
+
+Built with ❤️ using Expo and React Native
