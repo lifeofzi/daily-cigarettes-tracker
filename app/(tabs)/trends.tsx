@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Dimensions, TouchableOpacity, ScrollView, ActivityIndicator, StatusBar, Alert } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { format, subDays, isToday, isThisWeek, isThisMonth, eachDayOfInterval, startOfDay } from 'date-fns';
+import { format, subDays, addDays, isToday, isThisWeek, isThisMonth, eachDayOfInterval, startOfDay } from 'date-fns';
 import { getLogsByDay, CigaretteLog, getLogs } from '@/utils/storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -28,6 +28,7 @@ export default function TrendsScreen() {
     total: 0,
     changeFromLastPeriod: 0
   });
+  const seenYLabels = useRef<Set<number>>(new Set());
 
   const loadData = async () => {
     try {
@@ -38,9 +39,15 @@ export default function TrendsScreen() {
       // Ensure we have data for all days in the range
       const today = new Date();
       const startDate = subDays(today, days - 1);
+      
+      // For month view, extend 5 days into the future
+      const endDate = timeRange === 'month' 
+        ? addDays(today, 5) // Add 5 days
+        : today;
+      
       const allDays = eachDayOfInterval({
         start: startOfDay(startDate),
-        end: startOfDay(today)
+        end: startOfDay(endDate)
       });
 
       const filledData = allDays.map(day => {
@@ -65,7 +72,7 @@ export default function TrendsScreen() {
       const changeFromLastPeriod = 0; // You can implement this based on your needs
 
       // For week view, show day abbreviations (S, M, T, W, T, F, S)
-      // For month view, only show every 5th day label to prevent overlap
+      // For month view, show month names at transitions and day numbers otherwise
       const dayAbbrev: { [key: string]: string } = {
         'Sunday': 'S',
         'Monday': 'M',
@@ -75,14 +82,51 @@ export default function TrendsScreen() {
         'Friday': 'F',
         'Saturday': 'S'
       };
+      
       const showLabel = timeRange === 'week' 
         ? (date: Date) => dayAbbrev[format(date, 'EEEE')] || format(date, 'EEEEEE')
-        : (date: Date, index: number) => index % 5 === 0 ? format(date, 'MMM d') : '';
+        : (date: Date, index: number) => {
+            // For month view, only show start date and end date
+            const totalDays = filledData.length;
+            if (index === 0) {
+              // Start date: show month and day (e.g., "Oct 25")
+              return format(date, 'MMM d');
+            }
+            if (index === totalDays - 1) {
+              // End date (5 days in future for month view): show month and day (e.g., "Nov 19")
+              return format(date, 'MMM d');
+            }
+            // All other labels are empty
+            return '';
+          };
 
+      // Reset seen Y-axis labels for new chart data
+      seenYLabels.current.clear();
+      
+      // Separate labels (all days) from data (only up to today for month view)
+      const allLabels = filledData.map((item, index) => showLabel(item.date, index));
+      
+      let chartDataValues: number[];
+      if (timeRange === 'month') {
+        // For month view, only include data up to today
+        const dataUpToToday = filledData
+          .filter(item => item.date <= startOfDay(today))
+          .map(item => item.count);
+        
+        // Get the last known value to use for future dates (to stop the line)
+        const lastValue = dataUpToToday.length > 0 ? dataUpToToday[dataUpToToday.length - 1] : 0;
+        
+        // Pad with the last value so the line stops at today
+        const futureDaysCount = allLabels.length - dataUpToToday.length;
+        chartDataValues = [...dataUpToToday, ...Array(futureDaysCount).fill(lastValue)];
+      } else {
+        chartDataValues = filledData.map(item => item.count);
+      }
+      
       setChartData({
-        labels: filledData.map((item, index) => showLabel(item.date, index)),
+        labels: allLabels,
         datasets: [{
-          data: filledData.map(item => item.count),
+          data: chartDataValues,
           color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`,
           strokeWidth: 3,
         }]
@@ -132,8 +176,10 @@ export default function TrendsScreen() {
     secondaryText: '#757575', // Light gray text
   };
 
-  // Chart dimensions
-  const chartWidth = Dimensions.get('window').width - 40;
+  // Chart dimensions - maximize space, minimal padding
+  // Screen width minus: screen padding (40px) + minimal card padding (10px total) = 50px
+  const screenWidth = Dimensions.get('window').width;
+  const chartWidth = screenWidth - 50;
   const chartHeight = 220;
 
   const chartConfig = {
@@ -157,7 +203,7 @@ export default function TrendsScreen() {
       stroke: '#ffffff',
     },
     propsForLabels: {
-      fontSize: 12,
+      fontSize: 10,
       fill: '#666',
       fontFamily: 'System',
     },
@@ -238,12 +284,29 @@ export default function TrendsScreen() {
                   // Return first letter of day name
                   return value.charAt(0).toUpperCase();
                 }
-                return timeRange === 'month' ? value.split(' ')[1] : value.substring(0, 1);
+                // For month view, return the value as-is (already formatted as month name or day number)
+                return value;
+              }}
+              formatYLabel={(value: string) => {
+                // Format Y-axis labels to show integers only, prevent duplicates
+                const numValue = parseFloat(value);
+                if (isNaN(numValue)) return value;
+                const rounded = Math.round(numValue);
+                
+                // Check if we've already shown this value
+                if (seenYLabels.current.has(rounded)) {
+                  return ''; // Return empty string for duplicates
+                }
+                
+                // Mark this value as seen and return it
+                seenYLabels.current.add(rounded);
+                return rounded.toString();
               }}
               getDotColor={() => '#3f51b5'}
               style={{
-                marginVertical: 8,
-                marginLeft: -10,
+                marginVertical: -5,
+                marginLeft: -25,
+                marginRight: 0,
               }}
             />
           </View>
@@ -324,7 +387,9 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#ffffff',
     borderRadius: 20,
-    padding: 20,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingHorizontal: 5,
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -333,9 +398,12 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   chart: {
-    marginLeft: -10,
-    marginRight: -10,
-    marginTop: 10,
+    width: '100%',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-end',
+    marginTop: 0,
+    marginBottom: 0,
+    overflow: 'hidden',
   },
   statsContainer: {
     flexDirection: 'row',
