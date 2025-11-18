@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { format, subDays, isToday, isThisWeek, isThisMonth, eachDayOfInterval, startOfDay } from 'date-fns';
 import { getLogsByDay, CigaretteLog, getLogs } from '@/utils/storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface DailyData {
   date: Date;
@@ -17,7 +18,7 @@ export default function TrendsScreen() {
     labels: [] as string[],
     datasets: [{
       data: [] as number[],
-      color: (opacity = 1) => `rgba(76, 175, 80, ${opacity})`,
+      color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`,
       strokeWidth: 2
     }]
   });
@@ -72,13 +73,8 @@ export default function TrendsScreen() {
         labels: filledData.map((item, index) => showLabel(item.date, index)),
         datasets: [{
           data: filledData.map(item => item.count),
-          color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`, // Darker blue
-          strokeWidth: 5, // Even thicker line
-          withDots: false,
-          withShadow: false,
-          withVerticalLines: false,
-          withHorizontalLines: false,
-          lineTension: 0.3, // Slight curve for better visibility
+          color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`,
+          strokeWidth: 4,
         }]
       });
 
@@ -131,15 +127,14 @@ export default function TrendsScreen() {
   const chartHeight = 200;
 
   const chartConfig = {
-    backgroundGradientFrom: '#fff',
-    backgroundGradientTo: '#fff',
-    color: () => '#3f51b5',
+    backgroundGradientFrom: '#ffffff',
+    backgroundGradientTo: '#ffffff',
+    color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`,
     strokeWidth: 2,
     barPercentage: 0.5,
     useShadowColorFromDataset: false,
-    propsForDots: null,
     fillShadowGradient: '#3f51b5',
-    fillShadowGradientOpacity: 0.1,
+    fillShadowGradientOpacity: 0.08,
     decimalPlaces: 0,
     propsForBackgroundLines: {
       strokeWidth: 0.5,
@@ -153,11 +148,8 @@ export default function TrendsScreen() {
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     style: {
       borderRadius: 16
-    },
-    propsForLabels: {
-      fontSize: 10
     }
-  };
+  } as const;
 
   if (isLoading) {
     return (
@@ -168,17 +160,11 @@ export default function TrendsScreen() {
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+    <SafeAreaView style={styles.safeArea}>
+      <ThemedView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <ThemedText style={styles.dateText}>
-            {format(new Date(), 'EEEE, MMMM d')}
-          </ThemedText>
-          <ThemedText style={styles.screenTitle}>Trends</ThemedText>
-        </View>
-
         <View style={styles.timeRangePill}>
           <TouchableOpacity
             style={[
@@ -230,7 +216,7 @@ export default function TrendsScreen() {
               withHorizontalLabels={true}
               segments={4}
               fromZero
-              formatXLabel={(value, index) => {
+              formatXLabel={(value: string) => {
                 if (!value) return '';
                 return timeRange === 'month' ? value.split(' ')[1] : value.substring(0, 1);
               }}
@@ -265,35 +251,25 @@ export default function TrendsScreen() {
           </View>
         </View>
       </ScrollView>
-    </ThemedView>
+      </ThemedView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
   scrollContent: {
     flexGrow: 1,
+    paddingTop: 32,
     paddingBottom: 32,
     paddingHorizontal: 20,
-  },
-  header: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  dateText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 4,
-  },
-  screenTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#222',
   },
   timeRangePill: {
     flexDirection: 'row',
@@ -373,6 +349,8 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     color: '#3f51b5',
+    lineHeight: 36,
+    includeFontPadding: false,
   },
   statHint: {
     fontSize: 13,
