@@ -8,6 +8,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "build:web": "expo export -p web && cp public/_redirects dist/_redirects 2>/dev/null || true",
     "lint": "expo lint"
   },
   "dependencies": {
