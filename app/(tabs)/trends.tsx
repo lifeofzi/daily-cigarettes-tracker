@@ -64,9 +64,19 @@ export default function TrendsScreen() {
       // Simple change calculation (in a real app, compare with previous period)
       const changeFromLastPeriod = 0; // You can implement this based on your needs
 
+      // For week view, show day abbreviations (S, M, T, W, T, F, S)
       // For month view, only show every 5th day label to prevent overlap
+      const dayAbbrev: { [key: string]: string } = {
+        'Sunday': 'S',
+        'Monday': 'M',
+        'Tuesday': 'T',
+        'Wednesday': 'W',
+        'Thursday': 'T',
+        'Friday': 'F',
+        'Saturday': 'S'
+      };
       const showLabel = timeRange === 'week' 
-        ? (date: Date) => format(date, 'MMM d')
+        ? (date: Date) => dayAbbrev[format(date, 'EEEE')] || format(date, 'EEEEEE')
         : (date: Date, index: number) => index % 5 === 0 ? format(date, 'MMM d') : '';
 
       setChartData({
@@ -74,7 +84,7 @@ export default function TrendsScreen() {
         datasets: [{
           data: filledData.map(item => item.count),
           color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`,
-          strokeWidth: 4,
+          strokeWidth: 3,
         }]
       });
 
@@ -124,28 +134,34 @@ export default function TrendsScreen() {
 
   // Chart dimensions
   const chartWidth = Dimensions.get('window').width - 40;
-  const chartHeight = 200;
+  const chartHeight = 220;
 
   const chartConfig = {
     backgroundGradientFrom: '#ffffff',
     backgroundGradientTo: '#ffffff',
     color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`,
-    strokeWidth: 2,
+    strokeWidth: 3,
     barPercentage: 0.5,
     useShadowColorFromDataset: false,
     fillShadowGradient: '#3f51b5',
-    fillShadowGradientOpacity: 0.08,
+    fillShadowGradientOpacity: 0.15,
     decimalPlaces: 0,
     propsForBackgroundLines: {
-      strokeWidth: 0.5,
-      stroke: 'rgba(0, 0, 0, 0.05)',
+      strokeWidth: 1,
+      strokeDasharray: [5, 5],
+      stroke: 'rgba(200, 200, 200, 0.5)',
+    },
+    propsForDots: {
+      r: '5',
+      strokeWidth: '2',
+      stroke: '#ffffff',
     },
     propsForLabels: {
-      fontSize: 10,
-      fill: '#888',
+      fontSize: 12,
+      fill: '#666',
       fontFamily: 'System',
     },
-    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(102, 102, 102, ${opacity})`,
     style: {
       borderRadius: 16
     }
@@ -206,11 +222,11 @@ export default function TrendsScreen() {
               height={chartHeight}
               chartConfig={chartConfig}
               bezier
-              withDots={false}
-              withInnerLines={false}
+              withDots={true}
+              withInnerLines={true}
               withOuterLines={false}
               withVerticalLines={false}
-              withHorizontalLines={false}
+              withHorizontalLines={true}
               withShadow={false}
               withVerticalLabels={true}
               withHorizontalLabels={true}
@@ -218,9 +234,13 @@ export default function TrendsScreen() {
               fromZero
               formatXLabel={(value: string) => {
                 if (!value) return '';
+                if (timeRange === 'week') {
+                  // Return first letter of day name
+                  return value.charAt(0).toUpperCase();
+                }
                 return timeRange === 'month' ? value.split(' ')[1] : value.substring(0, 1);
               }}
-              getDotColor={() => 'transparent'}
+              getDotColor={() => '#3f51b5'}
               style={{
                 marginVertical: 8,
                 marginLeft: -10,
