@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Dimensions, TouchableOpacity, ScrollView, ActivityIndicator, StatusBar, Alert } from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
+import { LineChart } from 'react-native-gifted-charts';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { format, subDays, addDays, isToday, isThisWeek, isThisMonth, eachDayOfInterval, startOfDay } from 'date-fns';
@@ -12,23 +12,23 @@ interface DailyData {
   count: number;
 }
 
+interface ChartDataPoint {
+  value: number | undefined;
+  label?: string;
+  labelTextStyle?: any;
+  dataPointText?: string;
+}
+
 export default function TrendsScreen() {
   const [timeRange, setTimeRange] = useState<'week' | 'month'>('week');
-  const [chartData, setChartData] = useState({
-    labels: [] as string[],
-    datasets: [{
-      data: [] as number[],
-      color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`,
-      strokeWidth: 2
-    }]
-  });
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [xAxisLabels, setXAxisLabels] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
     dailyAverage: 0,
     total: 0,
     changeFromLastPeriod: 0
   });
-  const seenYLabels = useRef<Set<number>>(new Set());
 
   const loadData = async () => {
     try {
@@ -100,37 +100,34 @@ export default function TrendsScreen() {
             return '';
           };
 
-      // Reset seen Y-axis labels for new chart data
-      seenYLabels.current.clear();
-      
       // Find today's index
       const todayIndex = filledData.findIndex(item => 
         item.date.toDateString() === startOfDay(today).toDateString()
       );
       
-      // For month view, only include data up to today (stop the line at today)
-      // For week view, include all data
-      const dataEndIndex = timeRange === 'month' && todayIndex !== -1 
-        ? todayIndex + 1  // Include today, stop here
-        : filledData.length;
-      
-      // Slice data to only include up to today for month view
-      const dataToUse = filledData.slice(0, dataEndIndex);
-      
-      // Generate labels only for the data we're using (line stops at today)
-      const allLabels = dataToUse.map((item, index) => showLabel(item.date, index));
-      
-      // Generate data values - only actual data up to today
-      const chartDataValues = dataToUse.map(item => item.count);
-      
-      setChartData({
-        labels: allLabels,
-        datasets: [{
-          data: chartDataValues,
-          color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`,
-          strokeWidth: 3,
-        }]
+      // Generate chart data points
+      // For month view: include all days (with undefined values after today to stop the line)
+      // For week view: include all data
+      const chartDataPoints: ChartDataPoint[] = filledData.map((item, index) => {
+        const isAfterToday = timeRange === 'month' && index > todayIndex && todayIndex !== -1;
+        
+        return {
+          value: isAfterToday ? undefined : item.count, // undefined stops the line
+          label: index === 0 || index === filledData.length - 1 || (timeRange === 'week' && index % 2 === 0)
+            ? showLabel(item.date, index)
+            : '',
+          labelTextStyle: {
+            color: '#666',
+            fontSize: 10,
+          },
+        };
       });
+      
+      // Generate x-axis labels (for display)
+      const labels = filledData.map((item, index) => showLabel(item.date, index));
+      
+      setChartData(chartDataPoints);
+      setXAxisLabels(labels);
 
       setStats({
         dailyAverage: Number(dailyAverage),
@@ -177,41 +174,9 @@ export default function TrendsScreen() {
   };
 
   // Chart dimensions - maximize space, minimal padding
-  // Screen width minus: screen padding (40px) + minimal card padding (10px total) = 50px
   const screenWidth = Dimensions.get('window').width;
   const chartWidth = screenWidth - 50;
   const chartHeight = 220;
-
-  const chartConfig = {
-    backgroundGradientFrom: '#ffffff',
-    backgroundGradientTo: '#ffffff',
-    color: (opacity = 1) => `rgba(63, 81, 181, ${opacity})`,
-    strokeWidth: 3,
-    barPercentage: 0.5,
-    useShadowColorFromDataset: false,
-    fillShadowGradient: '#3f51b5',
-    fillShadowGradientOpacity: 0.15,
-    decimalPlaces: 0,
-    propsForBackgroundLines: {
-      strokeWidth: 1,
-      strokeDasharray: [5, 5],
-      stroke: 'rgba(200, 200, 200, 0.5)',
-    },
-    propsForDots: {
-      r: '5',
-      strokeWidth: '2',
-      stroke: '#ffffff',
-    },
-    propsForLabels: {
-      fontSize: 10,
-      fill: '#666',
-      fontFamily: 'System',
-    },
-    labelColor: (opacity = 1) => `rgba(102, 102, 102, ${opacity})`,
-    style: {
-      borderRadius: 16
-    }
-  } as const;
 
   if (isLoading) {
     return (
@@ -266,48 +231,42 @@ export default function TrendsScreen() {
               data={chartData}
               width={chartWidth}
               height={chartHeight}
-              chartConfig={chartConfig}
-              bezier
-              withDots={true}
-              withInnerLines={true}
-              withOuterLines={false}
-              withVerticalLines={false}
-              withHorizontalLines={true}
-              withShadow={false}
-              withVerticalLabels={true}
-              withHorizontalLabels={true}
-              segments={4}
-              fromZero
-              formatXLabel={(value: string) => {
-                if (!value) return '';
-                if (timeRange === 'week') {
-                  // Return first letter of day name
-                  return value.charAt(0).toUpperCase();
-                }
-                // For month view, return the value as-is (already formatted as month name or day number)
-                return value;
-              }}
-              formatYLabel={(value: string) => {
-                // Format Y-axis labels to show integers only, prevent duplicates
-                const numValue = parseFloat(value);
-                if (isNaN(numValue)) return value;
-                const rounded = Math.round(numValue);
-                
-                // Check if we've already shown this value
-                if (seenYLabels.current.has(rounded)) {
-                  return ''; // Return empty string for duplicates
-                }
-                
-                // Mark this value as seen and return it
-                seenYLabels.current.add(rounded);
-                return rounded.toString();
-              }}
-              getDotColor={() => '#3f51b5'}
-              style={{
-                marginVertical: -5,
-                marginLeft: -25,
-                marginRight: 0,
-              }}
+              spacing={timeRange === 'week' ? 40 : 8}
+              thickness={3}
+              color="#3f51b5"
+              hideRules={false}
+              rulesType="solid"
+              rulesColor="rgba(200, 200, 200, 0.5)"
+              rulesThickness={1}
+              hideYAxisText={false}
+              yAxisColor="#3f51b5"
+              xAxisColor="#3f51b5"
+              yAxisThickness={1}
+              xAxisThickness={1}
+              curved
+              areaChart={false}
+              startFillColor="#3f51b5"
+              endFillColor="#3f51b5"
+              startOpacity={0.15}
+              endOpacity={0}
+              textShiftY={-2}
+              textShiftX={-5}
+              textFontSize={10}
+              textColor="#666"
+              hideDataPoints={false}
+              dataPointsColor="#3f51b5"
+              dataPointsRadius={5}
+              dataPointsWidth={2}
+              maxValue={chartData.length > 0 
+                ? Math.max(...chartData.filter(d => d.value !== undefined).map(d => d.value as number), 0) + 1
+                : 4}
+              yAxisTextStyle={{ color: '#666', fontSize: 10 }}
+              xAxisLabelTextStyle={{ color: '#666', fontSize: 10 }}
+              noOfSections={4}
+              yAxisLabelPrefix=""
+              yAxisLabelSuffix=""
+              initialSpacing={0}
+              endSpacing={0}
             />
           </View>
         </View>

@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "dailyLimit": "Tageslimit",
+    "dailyLimitDescription": "Legen Sie die Anzahl der Zigaretten fest, die Sie täglich nicht überschreiten möchten.",
+    "whySetGoal": "Warum ein Ziel setzen?",
+    "whySetGoalDescription": "Ein klares Ziel hilft Ihnen, Ihren Fortschritt zu verfolgen und motiviert zu bleiben. Aktualisieren Sie Ihr Ziel, wann immer Sie eine neue Herausforderung benötigen.",
+    "cigaretteCost": "Zigarettenkosten",
+    "cigaretteCostDescription": "Geben Sie die ungefähren Kosten einer einzelnen Zigarette in Ihrer lokalen Währung ein. Dies hilft, Ihre Ausgaben zu verfolgen.",
+    "currency": "Währung",
+    "enterCost": "Kosten eingeben"
+  }
+}
+

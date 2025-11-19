@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "dailyLimit": "1日の制限",
+    "dailyLimitDescription": "1日に超えないようにするタバコの本数を設定します。",
+    "whySetGoal": "目標を設定する理由",
+    "whySetGoalDescription": "明確な目標を持つことで、進捗を追跡し、モチベーションを維持できます。新しい挑戦が必要なときはいつでも目標を更新してください。",
+    "cigaretteCost": "タバコの価格",
+    "cigaretteCostDescription": "1本のタバコの概算価格を現地通貨で入力してください。これにより支出を追跡できます。",
+    "currency": "通貨",
+    "enterCost": "価格を入力"
+  }
+}
+

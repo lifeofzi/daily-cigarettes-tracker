@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "dailyLimit": "Daily Limit",
+    "dailyLimitDescription": "Set the number of cigarettes you aim to stay under each day.",
+    "whySetGoal": "Why set a goal?",
+    "whySetGoalDescription": "Having a clear target helps you track your progress and stay motivated. Update your goal anytime you need a fresh challenge.",
+    "cigaretteCost": "Cost of Cigarette",
+    "cigaretteCostDescription": "Enter the approximate cost of a single cigarette in your local currency. This helps track your spending.",
+    "currency": "Currency",
+    "enterCost": "Enter cost"
+  }
+}
+

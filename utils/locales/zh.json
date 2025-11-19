@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "dailyLimit": "每日限制",
+    "dailyLimitDescription": "设置您每天目标不超过的香烟数量。",
+    "whySetGoal": "为什么要设定目标？",
+    "whySetGoalDescription": "有明确的目标有助于您跟踪进度并保持动力。每当您需要新的挑战时，都可以更新您的目标。",
+    "cigaretteCost": "香烟成本",
+    "cigaretteCostDescription": "输入单支香烟在您当地货币中的大致成本。这有助于跟踪您的支出。",
+    "currency": "货币",
+    "enterCost": "输入成本"
+  }
+}
+

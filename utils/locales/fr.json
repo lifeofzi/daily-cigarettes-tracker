@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "dailyLimit": "Limite Quotidienne",
+    "dailyLimitDescription": "Définissez le nombre de cigarettes que vous visez à ne pas dépasser chaque jour.",
+    "whySetGoal": "Pourquoi fixer un objectif ?",
+    "whySetGoalDescription": "Avoir un objectif clair vous aide à suivre vos progrès et à rester motivé. Mettez à jour votre objectif chaque fois que vous avez besoin d'un nouveau défi.",
+    "cigaretteCost": "Coût de la Cigarette",
+    "cigaretteCostDescription": "Entrez le coût approximatif d'une seule cigarette dans votre devise locale. Cela aide à suivre vos dépenses.",
+    "currency": "Devise",
+    "enterCost": "Entrer le coût"
+  }
+}
+

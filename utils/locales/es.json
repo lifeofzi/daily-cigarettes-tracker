@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "dailyLimit": "Límite Diario",
+    "dailyLimitDescription": "Establece el número de cigarrillos que te propones no superar cada día.",
+    "whySetGoal": "¿Por qué establecer una meta?",
+    "whySetGoalDescription": "Tener un objetivo claro te ayuda a seguir tu progreso y mantenerte motivado. Actualiza tu meta cuando necesites un nuevo desafío.",
+    "cigaretteCost": "Costo del Cigarrillo",
+    "cigaretteCostDescription": "Ingresa el costo aproximado de un cigarrillo en tu moneda local. Esto ayuda a rastrear tus gastos.",
+    "currency": "Moneda",
+    "enterCost": "Ingresar costo"
+  }
+}
+

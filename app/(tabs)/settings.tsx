@@ -12,29 +12,66 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
+import * as Localization from 'expo-localization';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { getDailyGoal, setDailyGoal } from '@/utils/storage';
+import { getDailyGoal, setDailyGoal, getCigaretteCost, setCigaretteCost } from '@/utils/storage';
 
 export default function SettingsScreen() {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState('0');
+  const [costValue, setCostValue] = useState('0.00');
   const [isLoading, setIsLoading] = useState(true);
+  const currency = Localization.getLocales()[0]?.currencyCode || 'USD';
+  
+  // Currency symbol mapping (fallback for React Native compatibility)
+  const currencySymbols: { [key: string]: string } = {
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    JPY: '¥',
+    CNY: '¥',
+    INR: '₹',
+    AUD: 'A$',
+    CAD: 'C$',
+    CHF: 'CHF',
+    SEK: 'kr',
+    NOK: 'kr',
+    DKK: 'kr',
+    PLN: 'zł',
+    RUB: '₽',
+    BRL: 'R$',
+    MXN: '$',
+    ZAR: 'R',
+    TRY: '₺',
+    KRW: '₩',
+    SGD: 'S$',
+    HKD: 'HK$',
+    NZD: 'NZ$',
+  };
+  
+  const currencySymbol = currencySymbols[currency] || '$';
 
   useEffect(() => {
-    const loadGoal = async () => {
+    const loadSettings = async () => {
       try {
-        const storedGoal = await getDailyGoal();
+        const [storedGoal, storedCost] = await Promise.all([
+          getDailyGoal(),
+          getCigaretteCost(),
+        ]);
         setInputValue(String(storedGoal));
+        setCostValue(storedCost > 0 ? storedCost.toFixed(2) : '0.00');
       } catch (error) {
-        console.error('Error loading goal', error);
-        Alert.alert('Error', 'Unable to load your goal right now.');
+        console.error('Error loading settings', error);
+        Alert.alert('Error', 'Unable to load your settings right now.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadGoal();
+    loadSettings();
   }, []);
 
   const adjustGoal = async (delta: number) => {
@@ -50,6 +87,7 @@ export default function SettingsScreen() {
       Alert.alert('Error', 'Unable to save your goal. Please try again.');
     }
   };
+
 
   if (isLoading) {
     return (
@@ -69,9 +107,9 @@ export default function SettingsScreen() {
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.card}>
-              <ThemedText style={styles.sectionTitle}>Daily Limit</ThemedText>
+              <ThemedText style={styles.sectionTitle}>{t('settings.dailyLimit')}</ThemedText>
               <ThemedText style={styles.sectionDescription}>
-                Set the number of cigarettes you aim to stay under each day.
+                {t('settings.dailyLimitDescription')}
               </ThemedText>
 
               <View style={styles.goalRow}>
@@ -98,6 +136,7 @@ export default function SettingsScreen() {
                       Alert.alert('Error', 'Unable to save your goal. Please try again.');
                     }
                   }}
+                  placeholder="0"
                   style={styles.goalInput}
                   maxLength={3}
                   textAlign="center"
@@ -114,10 +153,47 @@ export default function SettingsScreen() {
             </View>
 
             <View style={styles.card}>
-              <ThemedText style={styles.sectionTitle}>Why set a goal?</ThemedText>
+              <ThemedText style={styles.sectionTitle}>{t('settings.cigaretteCost')}</ThemedText>
               <ThemedText style={styles.sectionDescription}>
-                Having a clear target helps you track your progress and stay motivated. Update your
-                goal anytime you need a fresh challenge.
+                {t('settings.cigaretteCostDescription')}
+              </ThemedText>
+
+              <View style={styles.costInputContainer}>
+                <ThemedText style={styles.currencySymbol}>{currencySymbol}</ThemedText>
+                <TextInput
+                  value={costValue}
+                  keyboardType="decimal-pad"
+                  onChangeText={(text) => {
+                    // Allow numbers and one decimal point
+                    const cleaned = text.replace(/[^0-9.]/g, '');
+                    const parts = cleaned.split('.');
+                    if (parts.length > 2) return; // Only allow one decimal point
+                    if (parts[1] && parts[1].length > 2) return; // Max 2 decimal places
+                    setCostValue(cleaned || '0.00');
+                  }}
+                  onBlur={async () => {
+                    const parsedCost = parseFloat(costValue) || 0;
+                    const formatted = parsedCost.toFixed(2);
+                    setCostValue(formatted);
+                    try {
+                      await setCigaretteCost(parsedCost);
+                    } catch (error) {
+                      console.error('Error saving cost', error);
+                      Alert.alert('Error', 'Unable to save the cost. Please try again.');
+                    }
+                  }}
+                  style={styles.costInput}
+                  maxLength={10}
+                  textAlign="left"
+                  placeholder="0.00"
+                />
+              </View>
+            </View>
+
+            <View style={styles.card}>
+              <ThemedText style={styles.sectionTitle}>{t('settings.whySetGoal')}</ThemedText>
+              <ThemedText style={styles.sectionDescription}>
+                {t('settings.whySetGoalDescription')}
               </ThemedText>
             </View>
           </ScrollView>
@@ -208,6 +284,27 @@ const styles = StyleSheet.create({
     lineHeight: 36,
     textAlign: 'center',
     includeFontPadding: false,
+  },
+  costInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f4f5f7',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 24,
+  },
+  currencySymbol: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#3f51b5',
+    marginRight: 8,
+  },
+  costInput: {
+    flex: 1,
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#3f51b5',
   },
 });
 
