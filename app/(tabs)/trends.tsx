@@ -83,37 +83,43 @@ export default function TrendsScreen() {
         'Saturday': 'S'
       };
       
-      const showLabel = timeRange === 'week' 
-        ? (date: Date) => dayAbbrev[format(date, 'EEEE')] || format(date, 'EEEEEE')
-        : (date: Date, index: number) => {
-            // For month view, only show start date and end date
-            const totalDays = filledData.length;
-            if (index === 0) {
-              // Start date: show month and day (e.g., "Oct 25")
-              return format(date, 'MMM d');
-            }
-            if (index === totalDays - 1) {
-              // End date (future date for spacing): show month and day (e.g., "Nov 29")
-              return format(date, 'MMM d');
-            }
-            // All other labels are empty
-            return '';
-          };
-
       // Find today's index
       const todayIndex = filledData.findIndex(item => 
         item.date.toDateString() === startOfDay(today).toDateString()
       );
       
       // Generate chart data points
-      // For month view: include all days (with undefined values after today to stop the line)
+      // For month view: only include data up to today (stop the line at today)
       // For week view: include all data
-      const chartDataPoints: ChartDataPoint[] = filledData.map((item, index) => {
-        const isAfterToday = timeRange === 'month' && index > todayIndex && todayIndex !== -1;
-        
+      const dataEndIndex = timeRange === 'month' && todayIndex !== -1 
+        ? todayIndex + 1  // Include today, stop here
+        : filledData.length;
+      
+      const dataToUse = filledData.slice(0, dataEndIndex);
+      
+      const showLabel = timeRange === 'week' 
+        ? (date: Date) => dayAbbrev[format(date, 'EEEE')] || format(date, 'EEEEEE')
+        : (date: Date, index: number) => {
+            // For month view, only show start date and end date
+            const totalDays = dataToUse.length;
+            if (index === 0) {
+              // Start date: show month abbreviation and day (e.g., "Oct 25")
+              return format(date, 'MMM d');
+            }
+            if (index === totalDays - 1) {
+              // End date (today): show month abbreviation and day (e.g., "Nov 24")
+              return format(date, 'MMM d');
+            }
+            // All other labels are empty
+            return '';
+          };
+      
+      const chartDataPoints: ChartDataPoint[] = dataToUse.map((item, index) => {
+        // Ensure value is never negative
+        const value = Math.max(0, item.count);
         return {
-          value: isAfterToday ? undefined : item.count, // undefined stops the line
-          label: index === 0 || index === filledData.length - 1 || (timeRange === 'week' && index % 2 === 0)
+          value: value,
+          label: index === 0 || index === dataToUse.length - 1 || (timeRange === 'week' && index % 2 === 0)
             ? showLabel(item.date, index)
             : '',
           labelTextStyle: {
@@ -243,7 +249,7 @@ export default function TrendsScreen() {
               xAxisColor="#3f51b5"
               yAxisThickness={1}
               xAxisThickness={1}
-              curved
+              curved={false}
               areaChart={false}
               startFillColor="#3f51b5"
               endFillColor="#3f51b5"
@@ -257,16 +263,22 @@ export default function TrendsScreen() {
               dataPointsColor="#3f51b5"
               dataPointsRadius={5}
               dataPointsWidth={2}
-              maxValue={chartData.length > 0 
-                ? Math.max(...chartData.filter(d => d.value !== undefined).map(d => d.value as number), 0) + 1
-                : 4}
+              maxValue={(() => {
+                const validValues = chartData.filter(d => d.value !== undefined && d.value !== null).map(d => Math.max(0, d.value as number));
+                if (validValues.length === 0) return 4;
+                const max = Math.max(...validValues, 0);
+                // Round up to next integer, add some padding
+                return Math.ceil(max) + (max > 0 ? 1 : 0);
+              })()}
+              mostNegativeValue={0}
               yAxisTextStyle={{ color: '#666', fontSize: 10 }}
               xAxisLabelTextStyle={{ color: '#666', fontSize: 10 }}
               noOfSections={4}
               yAxisLabelPrefix=""
               yAxisLabelSuffix=""
-              initialSpacing={0}
-              endSpacing={0}
+              initialSpacing={10}
+              endSpacing={10}
+              yAxisOffset={0}
             />
           </View>
         </View>
