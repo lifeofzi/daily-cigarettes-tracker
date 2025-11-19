@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   StatusBar,
@@ -196,6 +198,28 @@ export default function SettingsScreen() {
                 {t('settings.whySetGoalDescription')}
               </ThemedText>
             </View>
+
+            <View style={styles.card}>
+              <ThemedText style={styles.sectionTitle}>Support the App</ThemedText>
+              <ThemedText style={styles.sectionDescription}>
+                If you find this app helpful, consider supporting its development with a coffee! ☕
+              </ThemedText>
+              
+              <View style={styles.bmcContainer}>
+                <Image
+                  source={require('@/assets/images/bmc_qr.png')}
+                  style={styles.bmcQR}
+                  resizeMode="contain"
+                />
+                <TouchableOpacity
+                  style={styles.bmcButton}
+                  onPress={() => Linking.openURL('https://buymeacoffee.com/zaman_ishtiyaq')}
+                  activeOpacity={0.8}
+                >
+                  <ThemedText style={styles.bmcButtonText}>Buy Me a Coffee</ThemedText>
+                </TouchableOpacity>
+              </View>
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </ThemedView>
@@ -305,6 +329,32 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '700',
     color: '#3f51b5',
+  },
+  bmcContainer: {
+    alignItems: 'center',
+    marginTop: 24,
+    gap: 20,
+  },
+  bmcQR: {
+    width: 200,
+    height: 200,
+    borderRadius: 12,
+  },
+  bmcButton: {
+    backgroundColor: '#FFDD00',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  bmcButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#000',
   },
 });
 

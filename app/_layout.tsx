@@ -11,7 +11,7 @@ import { hasSeenWelcome } from '@/utils/storage';
 import '@/utils/i18n'; // Initialize i18n
 
 // TEMPORARY: Set to true to always show welcome screen for testing
-const FORCE_WELCOME = false; // 👈 Change this to true to test welcome screen
+const FORCE_WELCOME = true; // 👈 Change this to true to test welcome screen
 
 export const unstable_settings = {
   // Remove anchor temporarily to allow index.tsx to run
