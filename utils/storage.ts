@@ -5,6 +5,7 @@ const STORAGE_KEY = '@DailyCigs:logs';
 const GOAL_KEY = '@DailyCigs:dailyGoal';
 const COST_KEY = '@DailyCigs:cigaretteCost';
 const CURRENCY_KEY = '@DailyCigs:currency';
+const HAS_SEEN_WELCOME_KEY = '@DailyCigs:hasSeenWelcome';
 const DEFAULT_GOAL = 0;
 const DEFAULT_COST = 0;
 
@@ -161,6 +162,34 @@ export const setCurrency = async (currency: string): Promise<void> => {
     await AsyncStorage.setItem(CURRENCY_KEY, currency);
   } catch (error) {
     console.error('Error saving currency:', error);
+    throw error;
+  }
+};
+
+export const hasSeenWelcome = async (): Promise<boolean> => {
+  try {
+    const value = await AsyncStorage.getItem(HAS_SEEN_WELCOME_KEY);
+    return value === 'true';
+  } catch (error) {
+    console.error('Error checking welcome status:', error);
+    return false;
+  }
+};
+
+export const setHasSeenWelcome = async (): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(HAS_SEEN_WELCOME_KEY, 'true');
+  } catch (error) {
+    console.error('Error saving welcome status:', error);
+    throw error;
+  }
+};
+
+export const resetWelcome = async (): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(HAS_SEEN_WELCOME_KEY);
+  } catch (error) {
+    console.error('Error resetting welcome status:', error);
     throw error;
   }
 };

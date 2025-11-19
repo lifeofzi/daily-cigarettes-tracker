@@ -1,0 +1,120 @@
+import { StyleSheet } from 'react-native';
+
+export const welcomeStyles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    justifyContent: 'space-between',
+    overflow: 'visible',
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 40,
+    paddingTop: 60,
+    overflow: 'visible',
+  },
+  logoSection: {
+    width: '100%',
+    alignItems: 'center',
+    /*height: 100,*/
+    marginBottom: 0,
+    paddingBottom: 0,
+    overflow: 'visible',
+  },
+  logoContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 40,
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  logo: {
+    width: 140,
+    height: 140,
+  },
+  appNameSection: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+    paddingTop: 20,
+    paddingBottom: 10,
+    minHeight: 60,
+    overflow: 'visible',
+  },
+  appName: {
+    fontSize: 45,
+    lineHeight: 60,
+    fontWeight: '800',
+    color: '#1a1a1a',
+    letterSpacing: -0.5,
+    fontFamily: 'System',
+    textAlign: 'center',
+    overflow: 'visible',
+  },
+  descriptionContainer: {
+    marginBottom: 40,
+    paddingHorizontal: 20,
+    width: '100%',
+  },
+  description: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 26,
+    fontWeight: '400',
+  },
+  featuresContainer: {
+    width: '100%',
+    gap: 1,
+  },
+  feature: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  featureIcon: {
+    fontSize: 28,
+    marginRight: 16,
+    width: 40,
+  },
+  featureText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+    flex: 1,
+  },
+  buttonContainer: {
+    paddingHorizontal: 40,
+    paddingBottom: 40,
+    paddingTop: 20,
+  },
+  getStartedButton: {
+    backgroundColor: '#3f51b5',
+    borderRadius: 16,
+    paddingVertical: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#3f51b5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  getStartedText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#ffffff',
+    letterSpacing: 0.5,
+  },
+});
+
