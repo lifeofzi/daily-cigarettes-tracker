@@ -40,10 +40,10 @@ export default function TrendsScreen() {
       const today = new Date();
       const startDate = subDays(today, days - 1);
       
-      // For month view, extend 5 days into the future
+      // For month view, extend 5 days into the future for spacing, but line will stop at today
       const endDate = timeRange === 'month' 
-        ? addDays(today, 5) // Add 5 days
-        : today;
+        ? addDays(today, 5) // Add 5 days for spacing
+        : startOfDay(today);
       
       const allDays = eachDayOfInterval({
         start: startOfDay(startDate),
@@ -93,7 +93,7 @@ export default function TrendsScreen() {
               return format(date, 'MMM d');
             }
             if (index === totalDays - 1) {
-              // End date (5 days in future for month view): show month and day (e.g., "Nov 19")
+              // End date (future date for spacing): show month and day (e.g., "Nov 29")
               return format(date, 'MMM d');
             }
             // All other labels are empty
@@ -103,25 +103,21 @@ export default function TrendsScreen() {
       // Reset seen Y-axis labels for new chart data
       seenYLabels.current.clear();
       
-      // Separate labels (all days) from data (only up to today for month view)
+      // Generate labels for all days (including future dates for spacing)
       const allLabels = filledData.map((item, index) => showLabel(item.date, index));
       
-      let chartDataValues: number[];
-      if (timeRange === 'month') {
-        // For month view, only include data up to today
-        const dataUpToToday = filledData
-          .filter(item => item.date <= startOfDay(today))
-          .map(item => item.count);
-        
-        // Get the last known value to use for future dates (to stop the line)
-        const lastValue = dataUpToToday.length > 0 ? dataUpToToday[dataUpToToday.length - 1] : 0;
-        
-        // Pad with the last value so the line stops at today
-        const futureDaysCount = allLabels.length - dataUpToToday.length;
-        chartDataValues = [...dataUpToToday, ...Array(futureDaysCount).fill(lastValue)];
-      } else {
-        chartDataValues = filledData.map(item => item.count);
-      }
+      // Generate data values - only include data up to today, use NaN for future dates to stop the line
+      const todayIndex = filledData.findIndex(item => 
+        item.date.toDateString() === startOfDay(today).toDateString()
+      );
+      
+      const chartDataValues = filledData.map((item, index) => {
+        // For dates after today in month view, use NaN to prevent the line from being drawn
+        if (timeRange === 'month' && index > todayIndex && todayIndex !== -1) {
+          return NaN; // NaN values will cause the chart to stop drawing the line
+        }
+        return item.count;
+      });
       
       setChartData({
         labels: allLabels,
