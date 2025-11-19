@@ -1,6 +1,11 @@
 # DailyCigs - Daily Cigarette Tracker
 
-A modern, cross-platform mobile application built with React Native and Expo to help you track your daily cigarette consumption. Monitor your habits, set goals, and visualize your progress over time.
+<img alight="center" width="100" height="100" alt="splash-icon" src="https://github.com/user-attachments/assets/c5c91a3d-ff7a-4398-a373-5d988e323eba" />
+
+
+A no bullshit app to track cigarette consumption. 
+
+A modern, cross-platAorm mobile application built with React Native and Expo to help you track your daily cigarette consumption. Monitor your habits, set goals, and visualize your progress over time.
 
 ## Features
 
@@ -18,6 +23,14 @@ The app includes three main screens:
 - **Home**: Quick counter and today's statistics
 - **Trends**: Visual charts showing your consumption over time
 - **Settings**: Configure your daily goals and preferences
+
+<div style="display:flex; gap:10px; align-items:flex-start;">
+  <img src="https://github.com/user-attachments/assets/0f54997a-9497-4906-844f-20c34e946481" width="150"/>
+  <img src="https://github.com/user-attachments/assets/904b2fd0-9b81-4478-86d1-ddab6ed6aba5" width="150"/>
+  <img src="https://github.com/user-attachments/assets/4fe294c2-b322-458f-be3b-d54423f63e2a" width="150"/>
+  <img src="https://github.com/user-attachments/assets/2a105951-e0a8-4286-a54b-d2c39a839ffa" width="150"/>
+  <img src="https://github.com/user-attachments/assets/7dcff514-b872-4dba-9ecc-2d8a8995c687" width="150"/>
+</div>
 
 ## Tech Stack
 
