@@ -5,7 +5,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { format, isToday } from 'date-fns';
-import { addLog, removeLog, getLogsForDate, getLogsByDay, CigaretteLog, getDailyGoal } from '@/utils/storage';
+import { addLog, removeLog, getLogsForDate, getLogsByDay, CigaretteLog, getDailyGoal, getCigaretteCost } from '@/utils/storage';
+import * as Localization from 'expo-localization';
 
 export default function HomeScreen() {
     const router = useRouter();
@@ -13,12 +14,41 @@ export default function HomeScreen() {
   const [todayLogs, setTodayLogs] = useState<CigaretteLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dailyGoal, setDailyGoal] = useState(0);
+  const [cigaretteCost, setCigaretteCost] = useState(0);
   const [timeStats, setTimeStats] = useState({
     morning: 0,
     afternoon: 0,
     evening: 0,
     night: 0
   });
+
+  // Currency symbol mapping
+  const currency = Localization.getLocales()[0]?.currencyCode || 'USD';
+  const currencySymbols: { [key: string]: string } = {
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    JPY: '¥',
+    CNY: '¥',
+    INR: '₹',
+    AUD: 'A$',
+    CAD: 'C$',
+    CHF: 'CHF',
+    SEK: 'kr',
+    NOK: 'kr',
+    DKK: 'kr',
+    PLN: 'zł',
+    RUB: '₽',
+    BRL: 'R$',
+    MXN: '$',
+    ZAR: 'R',
+    TRY: '₺',
+    KRW: '₩',
+    SGD: 'S$',
+    HKD: 'HK$',
+    NZD: 'NZ$',
+  };
+  const currencySymbol = currencySymbols[currency] || currency;
 
   const getTimeOfDay = (date: Date) => {
     const hour = date.getHours();
@@ -47,15 +77,17 @@ export default function HomeScreen() {
   const loadTodayData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [logs, goal] = await Promise.all([
+      const [logs, goal, cost] = await Promise.all([
         getLogsForDate(new Date()),
         getDailyGoal(),
+        getCigaretteCost(),
       ]);
 
       setTodayLogs(logs);
       setCount(logs.length);
       updateTimeStats(logs);
       setDailyGoal(goal);
+      setCigaretteCost(cost);
     } catch (error) {
       console.error('Error loading home data:', error);
       Alert.alert('Error', 'Failed to load your smoking data');
@@ -129,7 +161,14 @@ export default function HomeScreen() {
 
       <View style={styles.counterSection}>
         <ThemedText style={styles.counter}>{count}</ThemedText>
-        <ThemedText style={styles.counterLabel}>cigarettes today</ThemedText>
+        <View style={styles.counterLabelRow}>
+          <ThemedText style={styles.counterLabel}>cigarettes today</ThemedText>
+          {cigaretteCost > 0 && (
+            <ThemedText style={styles.moneySpent}>
+              {' '}({currencySymbol}{(count * cigaretteCost).toFixed(2)})
+            </ThemedText>
+          )}
+        </View>
 
         <View style={styles.buttonRow}>
           <TouchableOpacity 
@@ -267,10 +306,19 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     lineHeight: 100,
   },
+  counterLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 30,
+  },
   counterLabel: {
     fontSize: 18,
     color: '#666',
-    marginBottom: 30,
+  },
+  moneySpent: {
+    fontSize: 18,
+    color: '#666',
   },
   buttonRow: {
     flexDirection: 'row',

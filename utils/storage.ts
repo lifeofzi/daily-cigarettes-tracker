@@ -4,6 +4,7 @@ import { format, parseISO, isSameDay } from 'date-fns';
 const STORAGE_KEY = '@DailyCigs:logs';
 const GOAL_KEY = '@DailyCigs:dailyGoal';
 const COST_KEY = '@DailyCigs:cigaretteCost';
+const CURRENCY_KEY = '@DailyCigs:currency';
 const DEFAULT_GOAL = 0;
 const DEFAULT_COST = 0;
 
@@ -142,6 +143,24 @@ export const setCigaretteCost = async (cost: number): Promise<void> => {
     await AsyncStorage.setItem(COST_KEY, cost.toString());
   } catch (error) {
     console.error('Error saving cigarette cost:', error);
+    throw error;
+  }
+};
+
+export const getCurrency = async (): Promise<string | null> => {
+  try {
+    return await AsyncStorage.getItem(CURRENCY_KEY);
+  } catch (error) {
+    console.error('Error getting currency:', error);
+    return null;
+  }
+};
+
+export const setCurrency = async (currency: string): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(CURRENCY_KEY, currency);
+  } catch (error) {
+    console.error('Error saving currency:', error);
     throw error;
   }
 };
