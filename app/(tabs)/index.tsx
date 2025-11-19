@@ -154,7 +154,7 @@ export default function HomeScreen() {
       {dailyGoal > 0 ? (
         <View style={styles.goalCard}>
           <View style={styles.goalHeader}>
-            <ThemedText style={styles.goalTitle}>Daily Goal</ThemedText>
+            <ThemedText style={styles.goalTitle}>Daily Limit</ThemedText>
             <ThemedText style={styles.goalValue}>{count} / {dailyGoal}</ThemedText>
           </View>
 
@@ -196,7 +196,7 @@ export default function HomeScreen() {
           activeOpacity={0.9}
           onPress={handleNavigateToSettings}
         >
-          <ThemedText style={styles.goalTitle}>No daily goal yet</ThemedText>
+          <ThemedText style={styles.goalTitle}>No daily limit yet. Let's keep it at 0.</ThemedText>
           <ThemedText style={styles.goalEmptyDescription}>
             Tap to set a limit and visualize your progress.
           </ThemedText>

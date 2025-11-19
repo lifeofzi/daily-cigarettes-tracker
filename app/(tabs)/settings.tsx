@@ -69,7 +69,7 @@ export default function SettingsScreen() {
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.card}>
-              <ThemedText style={styles.sectionTitle}>Daily Goal</ThemedText>
+              <ThemedText style={styles.sectionTitle}>Daily Limit</ThemedText>
               <ThemedText style={styles.sectionDescription}>
                 Set the number of cigarettes you aim to stay under each day.
               </ThemedText>

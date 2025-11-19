@@ -57,9 +57,9 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <ThemedText style={styles.sectionTitle}>Daily Goal</ThemedText>
+        <ThemedText style={styles.sectionTitle}>Daily Limit</ThemedText>
         <View style={styles.settingRow}>
-          <ThemedText style={styles.settingLabel}>Target cigarettes per day</ThemedText>
+          <ThemedText style={styles.settingLabel}>Limit cigarettes per day</ThemedText>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}

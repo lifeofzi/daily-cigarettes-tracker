@@ -103,21 +103,25 @@ export default function TrendsScreen() {
       // Reset seen Y-axis labels for new chart data
       seenYLabels.current.clear();
       
-      // Generate labels for all days (including future dates for spacing)
-      const allLabels = filledData.map((item, index) => showLabel(item.date, index));
-      
-      // Generate data values - only include data up to today, use NaN for future dates to stop the line
+      // Find today's index
       const todayIndex = filledData.findIndex(item => 
         item.date.toDateString() === startOfDay(today).toDateString()
       );
       
-      const chartDataValues = filledData.map((item, index) => {
-        // For dates after today in month view, use NaN to prevent the line from being drawn
-        if (timeRange === 'month' && index > todayIndex && todayIndex !== -1) {
-          return NaN; // NaN values will cause the chart to stop drawing the line
-        }
-        return item.count;
-      });
+      // For month view, only include data up to today (stop the line at today)
+      // For week view, include all data
+      const dataEndIndex = timeRange === 'month' && todayIndex !== -1 
+        ? todayIndex + 1  // Include today, stop here
+        : filledData.length;
+      
+      // Slice data to only include up to today for month view
+      const dataToUse = filledData.slice(0, dataEndIndex);
+      
+      // Generate labels only for the data we're using (line stops at today)
+      const allLabels = dataToUse.map((item, index) => showLabel(item.date, index));
+      
+      // Generate data values - only actual data up to today
+      const chartDataValues = dataToUse.map(item => item.count);
       
       setChartData({
         labels: allLabels,

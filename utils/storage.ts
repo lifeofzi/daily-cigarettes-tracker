@@ -111,7 +111,7 @@ export const getDailyGoal = async (): Promise<number> => {
     const value = await AsyncStorage.getItem(GOAL_KEY);
     return value ? parseInt(value, 10) || DEFAULT_GOAL : DEFAULT_GOAL;
   } catch (error) {
-    console.error('Error getting daily goal:', error);
+    console.error('Error getting daily limit:', error);
     return DEFAULT_GOAL;
   }
 };
@@ -120,7 +120,7 @@ export const setDailyGoal = async (goal: number): Promise<void> => {
   try {
     await AsyncStorage.setItem(GOAL_KEY, goal.toString());
   } catch (error) {
-    console.error('Error saving daily goal:', error);
+    console.error('Error saving daily limit:', error);
     throw error;
   }
 };
